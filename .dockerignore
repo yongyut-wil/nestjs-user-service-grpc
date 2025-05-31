@@ -1,0 +1,22 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+dist
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# IDE specific
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
