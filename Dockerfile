@@ -17,6 +17,9 @@ COPY . .
 # The build script (nest build && cpx "proto/**/*" dist/proto) handles proto files
 RUN yarn build
 
+# Make sure proto files are properly copied to dist/proto
+RUN ls -la dist/proto || (mkdir -p dist/proto && cp -r proto/* dist/proto/)
+
 # Remove devDependencies to reduce the size of node_modules
 # and clean yarn cache. This node_modules will be copied to the final image.
 RUN yarn install --production --frozen-lockfile && yarn cache clean
@@ -38,8 +41,15 @@ COPY --from=builder /usr/src/app/node_modules ./node_modules
 # Copy the built application (dist folder)
 COPY --from=builder /usr/src/app/dist ./dist
 
+# Double check proto files are in dist/proto directory
+RUN ls -la dist/proto
+
 # Expose the gRPC port
 EXPOSE 50051
+
+# Health check for the gRPC service
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD nc -z localhost 50051 || exit 1
 
 # Command to run the application (uses 'node dist/main' via package.json script 'start:prod')
 CMD ["yarn", "start:prod"]

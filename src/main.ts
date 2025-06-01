@@ -18,16 +18,17 @@ process.on('uncaughtException', (error) => {
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   try {
-    const resolvedProtoPath = join(__dirname, 'proto/user.proto');
-    logger.log(`Attempting to load .proto file from: ${resolvedProtoPath}`); // Log the path
-
+    const protoDir = join(__dirname, 'proto');
+    const protoPath = join(protoDir, 'user.proto');
+    logger.log(`Attempting to load .proto file from: ${protoPath}`);
+    
     const app = await NestFactory.createMicroservice<MicroserviceOptions>(
       AppModule,
       {
         transport: Transport.GRPC,
         options: {
           package: 'user',
-          protoPath: resolvedProtoPath, // Use the resolved path
+          protoPath: protoPath,
           url: '0.0.0.0:50051', // Listen on all interfaces for Docker
           loader: {
             keepCase: true,
@@ -35,6 +36,7 @@ async function bootstrap() {
             enums: String,
             defaults: true,
             oneofs: true,
+            includeDirs: [protoDir]
           },
         },
       },
